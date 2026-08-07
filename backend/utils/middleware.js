@@ -1,4 +1,4 @@
-const logger = require('./logger')
+import logger from './logger.js'
 // const jwt = require("jsonwebtoken");
 // const User = require("../models/user");
 
@@ -62,7 +62,7 @@ const errorHandler = (error, request, response, next) => {
   next(error)
 }
 
-module.exports = {
+export default {
   requestLogger,
   unknownEndpoint,
   errorHandler,

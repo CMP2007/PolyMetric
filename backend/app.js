@@ -1,12 +1,19 @@
-const path = require('path')
-const config = require('./utils/config')
-const express = require('express')
+import path from 'path'
+import { fileURLToPath } from 'url'
+import config from './utils/config.js'
+import express from 'express'
+import mongoose from 'mongoose'
+import userRouter from './controllers/users.js'
+import middleware from './utils/middleware.js'
+import logger from './utils/logger.js'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
 const app = express()
-const middleware = require('./utils/middleware')
-const logger = require('./utils/logger')
-const mongoose = require('mongoose')
 
 const mongoUrl = config.MONGODB_URI
+
 mongoose
   .connect(mongoUrl)
   .then(() => {
@@ -16,21 +23,13 @@ mongoose
     logger.error('error connecting to MongoDB:', error.message)
   })
 
-// backend/app.js
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Servidor conectado con éxito' })
-})
-
 app.use(express.json())
 
 if (process.env.NODE_ENV !== 'test') {
   app.use(middleware.requestLogger)
 }
 
-if (process.env.NODE_ENV === 'test') {
-  // const testingRouter = require('./controllers/testing')
-  // app.use('/api/testing', testingRouter)
-}
+app.use('/api/users', userRouter)
 
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, 'dist')))
@@ -43,4 +42,4 @@ if (process.env.NODE_ENV === 'production') {
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
 
-module.exports = app
+export default app
